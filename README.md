@@ -20,7 +20,7 @@ This test data consist of amplicon sequencing reads from water column from Lacam
   - **representative_seq_set_tax_assignments.txt** Taxonomy assignation results
   - **summary.tar.gz** OTU tables summarized at different taxonomy levels (phylum, class, order, famyly, genus and species)
   
-  ## How to use this data
+## How to use this data
 
 This "mini tutorial" assumes that you already have installed and have a basic idea on how to use _Cascabel_, otherwhise please refer to the official [wiki site of the project](https://github.com/AlejandroAb/CASCABEL/wiki).
 
