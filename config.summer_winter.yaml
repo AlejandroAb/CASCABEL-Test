@@ -465,7 +465,6 @@ cutadapt:
 #------------------------------------------------------------------------------#
 chimera:
   search: "T"
-  tool: "VSEARCH"
   method: "uchime_ref"
   threads: 10
   extra_params: "--db /export/data01/databases/gold_db/gold.fa"
