@@ -1,5 +1,5 @@
 # CASCABEL-Test
-In this repository you fill find test data for [CASCABEL](https://github.com/AlejandroAb/CASCABEL) and some of it's expected results.
+In this repository you will find test data for [CASCABEL](https://github.com/AlejandroAb/CASCABEL) and some of it's expected results.
 This test data consist of amplicon sequencing reads from water column from Lacamas Lake (WA, US), NCBI's Bioproject [PRJNA524776](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA524776)   
 
 ## Files in this repo
@@ -32,14 +32,14 @@ Onece you have downloaded this data the next step is to initialize the library s
 Scripts/init_sample.sh cascabel_project winter /absolute/path/to/sampleList_mergedBarcodes_winter.txt /absolute/path/to/LCWinter_R1.100K.fastq.gz /absolute/path/to/LCWinter_R2.100K.fastq.gz
 
 #init summer library
-Scripts/init_sample.sh cascabel_project winter /absolute/path/to/sampleList_mergedBarcodes_summer.txt /absolute/path/to/LCSummer_R1.100K.fastq.gz /absolute/path/to/LCSummer_R2.100K.fastq.gz
+Scripts/init_sample.sh cascabel_project summer /absolute/path/to/sampleList_mergedBarcodes_summer.txt /absolute/path/to/LCSummer_R1.100K.fastq.gz /absolute/path/to/LCSummer_R2.100K.fastq.gz
 ```
 _*Please note that you have only to perform this step for executing a multiple library RUN, in most of the cases you just have to supply the barcode file and raw data information directly into the configuration file_
 
 If you want to generate the DAG (Directed Acyclic Graph) of jobs, as the one supplied on this repo, you can do it with the following command:
 
 ```
-snakemake --configfile config.summer_winter.yaml --dag | dot -Tpng > winter_sammer.dag.png``
+snakemake --configfile config.summer_winter.yaml --dag | dot -Tpng > winter_sammer.dag.png
 ```
 To run the pipeline you just need to be located at CASCABEL's directory and execute snakemake:
 ```
