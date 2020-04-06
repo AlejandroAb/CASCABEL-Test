@@ -13,7 +13,7 @@
 # ignored by Snakemake.                                                        #
 #                                                                              #
 # @Author: Julia Engelmann and Alejandro Abdala                                #
-# @Last update: 31/07/2019                                                     #
+# @Last update: 24/03/2020                                                     #
 ################################################################################
 
 ################################################################################
@@ -24,16 +24,19 @@
 ################################################################################
 
 #------------------------------------------------------------------------------#
-#                             Execution mode                                   #
+#                                Execution mode                                #
 #------------------------------------------------------------------------------#
 # This parameter allows the user to inspect intermediate files in order to     #
-# finetune some downstream analises, re-do previous steps or exit the workflow.#	            
+# finetune some downstream analises, re-do previous steps or exit the workflow.#
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #	            
 # -interactive   Set this flag to "T" (default) in order to interact at some   #
 #                specific steps with the pipeline. "F" will try to run all the #
 #                pipeline without communicating intermediate results until the #
 #                report.                                                       # 
 # For a list for all the interactive checkpoints take a look at the following  #
-# link: TBD                                                                    #
+# link: https://github.com/AlejandroAb/CASCABEL/wiki#5-interactive-mode        #
 #------------------------------------------------------------------------------#
 interactive : "T"
 
@@ -52,7 +55,7 @@ PROJECT: "cascabel_project"
 # SAMPLES/LIBRARIES you want to include in the analysis.                       #
 # Use the same library names as with the init_sample.sh script.                #
 # Include each library name surrounded by quotes, and comma separated.         #
-# i.e LIBRARY: ["SAMP_1","SAMP_2",..."SAMP_N"]                                 #
+# i.e LIBRARY:  ["LIB_1","LIB_2",..."LIB_N"]                                   #
 #------------------------------------------------------------------------------#
 LIBRARY: ["summer","winter"]
 
@@ -74,7 +77,7 @@ RUN: "Test"
 # Brief description of the run. Any description written here will be included  #
 # in the final report. This field is not mandatory so it can remain empty.     #
 #------------------------------------------------------------------------------#
-description: "This one example for multiple library run with cascabel"
+description: "Example for multiple library run with cascabel"
 
 #------------------------------------------------------------------------------#
 #                             INPUT TYPE                                       #
@@ -99,6 +102,9 @@ gzip_input: "T"
 # Here you have to enter the FULL PATH for both: the raw reads and the metadata# 
 # file (barcode mapping file). The metadata file is only needed if you want to #
 # perform demultiplexing.                                                      #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - fw_reads:  Full path to the raw reads in forward direction (R1)            #
 # - rw_reads:  Full path to the raw reads in reverse direction (R2)            #
 # - metadata:  Full path to the metadata file with barcodes for each sample    #
@@ -107,7 +113,6 @@ gzip_input: "T"
 fw_reads: ""
 rv_reads: ""
 metadata: ""
-
 
 ################################################################################
 #                          REPORT PARAMETER SECTION                            #
@@ -127,11 +132,14 @@ metadata: ""
 # One way to validate if your active session is using an Xserver, execute      #
 # 'echo $DISPLAY'  on a command line terminal. If this returns empty, you do   #
 # not have an Xserver session.                                                 #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - pdfReport            "T" for generate pdf report or "F" to skip it.        #
 # - wkhtmltopdf_command  name w/wo path to execute the html to pdf translation #
 #------------------------------------------------------------------------------#
 pdfReport: "T"
-wkhtmltopdf_command: "wkhtmltopdf"
+wkhtmltopdf_command: "wkhtmltopdf -T 10mm -B 30mm "
 
 #------------------------------------------------------------------------------#
 #                           Portable Report                                    #
@@ -150,6 +158,9 @@ portableReport: "T"
 # Krona allows hierarchical data to be explored with zooming, multi-layered pie#
 # charts. The interactive charts are self-contained and can be viewed with any #
 # modern web browser.                                                          #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - report        Indicate with "T"/"F" if CASCABEL should generate a Krona    #
 #                 chart.                                                       #
 # - ktImportText  Name of the command to invoque this krona utility.           #
@@ -163,14 +174,12 @@ portableReport: "T"
 # - extra_params  Any other extra parameter from ktImportText tool. default    #
 #                 "-n root_extra"                                              #
 #------------------------------------------------------------------------------#
-
 krona:
   report: "T"
   command: "ktImportText"
   samples: "all"
   otu_table: "default"
   extra_params: "-n root_extra"
-
 
 ################################################################################
 #                        Specific Parameters Section                           #
@@ -181,11 +190,74 @@ krona:
 # This parameter is designed to allow the user to pass any other extra         #
 # parameter to the program invoked by the rule, as some rules do not list all  #
 # the parameters of the underlying tool explicitly. In these cases, the user   #
-# can specify any other parameter using "extra_params".                        #  
+# can specify any other parameter using "extra_params".                        #
+# IMPORTANT NOTE:                                                              #
+# After defining the type of analysis, in the header of the comments for each  #
+# set of parameters, you will see a prefix indicating if the parameters/options# 
+# apply for the OTU workflow, the ASV workflow or both. For more information in# 
+# the type of analyses, please refer to the next section "ANALYSIS TYPE".      #
 ################################################################################
 
 #------------------------------------------------------------------------------#
-#                        Quality control with FastQC                           #
+#                                 ANALYSIS TYPE                                #
+# rules:                                                                       #
+#------------------------------------------------------------------------------#
+# Cascabel supports two main types of analysis:                                #
+#  1) Analysis based on traditional OTUs (Operational Taxonomic Units) which   #
+#     are mainly generated by clustering sequences based on a sheared          #
+#     similarity threshold.                                                    #
+#  2) Analysis based on ASV (Amplicon sequence variant). This kind of analysis #
+#     deal also with the errors on the sequence reads such that true sequence  #
+#     variants can be resolved, down to the level of single-nucleotide         #
+#     differences.                                                             #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              # 
+# - ANALYSIS_TYPE    "OTU" or "ASV". Defines the type analysis                 #
+#------------------------------------------------------------------------------#
+ANALYSIS_TYPE: "ASV"
+
+
+#------------------------------------------------------------------------------#
+# OTU_WF:                  UNPAIRED DATA WORK FLOW                             #
+#------------------------------------------------------------------------------#
+# A regular workflow for marker gene analysis using paired-end data,           #
+# comprehends the assembly of forward and reverse reads, prior to continuing   #
+# with downstream analysis, behavior, that is implemented within this pipeline.#
+# However, primers can potentially amplify fragments larger than the expected  #
+# ones, therefore, there is no overlap between FR and RV reads, thus discarding#
+# all those "un-paired" reads during the assembly. For this scenario, when the #
+# analysis type (ANALYSIS_TYPE) is "OTU"  Cascabel implements an alternative   #
+# flow, where instead of continue downstream analyses with assembled reads,    #
+# un-assembled reads are concatenated together with a degenerated base 'N'     #
+# between the FW reads and the reverse complemented RV reads (which does not   #
+# significantly influence k-mer based classification methods such as RDP).     #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+#                                                                              # 
+# - UNPAIRED_DATA_PIPELINE    "T" or "F" True for work with the "un-assembled" #
+#                             reads. If ANALYSIS_TYPE = "ASV" this option is   #
+#                             ignored and taken as "F". If you want a similar  #
+#                             approach with "ASV" take a look at the option    #
+#                             "justConcatenate" from the mergePairs() function #
+#                             from dada2 package.                              #
+# - CHAR_TO_PAIR              In-silico base used to pair both fragments.      #
+#                             Valid values A|T|G|C|N. You can use more than one#
+#                             base, e.g. "GGGGG" pair with 5 Gs                # 
+# - QUALITY_CHAR              The forward and reverse reads are paired         #
+#                             in-silico in a fastq file, thus the quality for  #
+#                             the pairing bases must be provided. If more than #
+#                             one CHAR_TO_PAIR is used, you only need to       #
+#                             specify one and only one QUALITY_CHAR.           #  
+#------------------------------------------------------------------------------#
+UNPAIRED_DATA_PIPELINE: "F"
+CHAR_TO_PAIR: "T"
+QUALITY_CHAR: "G"
+
+
+#------------------------------------------------------------------------------#
+# BOTH_WF:               Quality control with FastQC                           #
 # rules: fast_qc, validateQC                                                   #
 #------------------------------------------------------------------------------#
 # FastQC evaluates 12 main concepts on the sequences: basic statistics, per    #
@@ -193,6 +265,9 @@ krona:
 # scores, per base sequence content, per sequence GC content, per base N       #
 # content, sequence length distribution, sequence duplication levels,          #
 # overrepresented sequences, adapter content and Kmer content.                 #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - command       Command needed to invoke fastqc [default: "fastqc"].         #
 # - extra_params  Extra parameters. See fastqc --help for more info.           #
 # - qcLimit       Set the maximum number of FastQC FAILS (from the 12 tests    #
@@ -205,10 +280,13 @@ fastQC:
   qcLimit : 3
 
 #------------------------------------------------------------------------------#
-#           Assemble fragments (merge forward with reverse reads)              #
+# BOTH_WF:       Assemble fragments (merge forward with reverse reads)         #
 # rule: pear                                                                   #
 #------------------------------------------------------------------------------#
 # This step is performed to merge paired reads.                                #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - t             Minimum length of reads after trimming the low.              #
 # - v             Minimum overlap size. The minimum overlap may be set to 1    #
 #                 when the statistical test is used. (default in pear: 10)     #
@@ -231,7 +309,7 @@ pear:
   prcpear: 90
 
 #------------------------------------------------------------------------------#
-#                  FastQC on merged/assembled fragments                        #
+# BOTH_WF:         FastQC on merged/assembled fragments                        #
 # rule: fastQCPear                                                             #
 #------------------------------------------------------------------------------#
 # Once the paired end reads have been merged into one fragment, run FastQC     #
@@ -241,7 +319,7 @@ pear:
 fastQCPear: T
 
 #------------------------------------------------------------------------------#
-#                                  QIIME                                       #
+# BOTH_WF:                         QIIME                                       #
 # rule: bc_mapping_validation, extract_barcodes, extract_barcodes_unassigned,  #
 # split_libraries, split_libraries_rc, search_chimera, cluster_OTUs,           #
 # pick_representatives, assign_taxonomy, make_otu_table, summarize_taxa,       #
@@ -257,36 +335,45 @@ qiime:
   path: ""
 
 #------------------------------------------------------------------------------#
-#                                    R                                         #
+# BOTH_WF:                           R                                         #
 # rules:  correct_barcodes, correct_barcodes_unassigned, histogram_chart       #
 #------------------------------------------------------------------------------#
 # R is used by different rules whitin the pipeline. In order to run these      #
 # rules, CASCABEL uses the Rscript command.                                    #
 # Here you can change the command to call Rscript.                             #
-# - path     Rscript command, [default "Rscript"].                             #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+# - command     Rscript command, [default "Rscript"].                          #
 #------------------------------------------------------------------------------#
 Rscript:
-  command: "/usr/local/bioinf/R/3.5.0/bin/Rscript"
+  command: "Rscript"
 
 #------------------------------------------------------------------------------#
-#                                  JAVA                                        #
+# BOTH_WF:                         JAVA                                        #
 # rules:  write_dmx_files, degap_alignment, remap_clusters                     #
 #------------------------------------------------------------------------------#
 # Java is used by different rules whitin the pipeline. In order to run java,   #
 # the pipeline needs to know how to invoke it.                                 #
 # Here you can change the command to invoke java.                              #
-# - path     java command, [default: "java"].                                  #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+# - command    java command and or path to binaries if needed [default: "java"]#
 #------------------------------------------------------------------------------#
 java:
   command: "java"
 
 
 #------------------------------------------------------------------------------#
-#                   Demultiplex input files                                    #
+# BOTH_WF:          Demultiplex input files                                    #
 # rule: write_dmx_files                                                        #
 #------------------------------------------------------------------------------#
 # CASCABEL optionally performs library demultiplexing for barcoded reads.      #
 # This feature can be turned ON/OFF with the following options:                #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - demultiplex         "T". If the pipeline is going to demultiplex the input #
 #                       files. In this case, the metadata file has to be       #
 #                       provided.                                              #
@@ -294,24 +381,63 @@ java:
 # - create_fastq_files  "T" or "F". If 'demultiplex' = T and this is also T,   #
 #                       the pipeline will create demultiplexed fastq files per #
 #                       sample.                                                #
-# - dmx_params:         Parameters to pass on to the demultiplexing script.    #
+# - remove_bc           The demultiplexed fastq files are created using the    #
+#                       raw data, thus they may contain artificial sequences   #
+#                       like the barcodes. This option trim the first N bases  #
+#                       from each read.                                        #
+# - order_by_strand     While demultiplexing it is possible to identify the    #
+#                       current strand of the read according to the barcode.   #
+#                       Set this option to "T" in order to interchange FW with #
+#                       RV reads when barcodes are found on opposity strands.  #
+# - add_unpair          "T". Un-assembled reads are also included within the   #
+#                       demultiplexing process in order to being assigned to   #
+#                       its samples.                                           #
+#                       "F". Only carry demultiplexing process with paired     #
+#                       reads.                                                 #
+# - dmx_params          Parameters to pass on to the demultiplexing script.    #
 #                       For example, the user can change the prefix and suffix #
 #                       of the output files. To see the available parameters,  #
 #                       run: java -cp Scripts DemultiplexQiime                 #
+# - primers             In the same sense as for "remove_bc" option,           #
+#                       demultiplexed reads may contain adapters or primers.   #
+#                       The following parameters supply options for removing   #
+#                       these sequences by using cutadapt.                     #  
+#   ** remove           "T" or "F" for removing or not any kinf of sequence.   #
+#   ** fw_primer        Sequence to be removed from forward reads. It accepts  #
+#                       IUPAC wildcards. i.e. "^GTGYCAGCMGCCGCGGTAA"           #
+#   ** rv_primer        Sequence to be removed from reverse reads. It accepts  #
+#                       IUPAC wildcards. i.e. "^GGACTACNVGGGTWTCTAAT"          #
+#   ** min_overlap      Minimun overlap between a primer and a sequence to be  #
+#                       identified.                                            #
+#   ** extra_params     Any extra parameter that you wish to supply to  the    #
+#                       cutadapt command. Default "--discard-untrimmed". With  #
+#                       this extra option, reads without the primers are       #
+#                       discarded.                                             #
 #------------------------------------------------------------------------------#
-
 demultiplexing:
   demultiplex: "T"
   create_fastq_files: "T"
-  dmx_params: ""
-
+  remove_bc: 12
+  order_by_strand: "T" 
+  add_unpair: "T" 
+  dmx_params: "--remove-header"
+  primers:
+    remove: "T"
+    fw_primer: "GTGYCAGCMGCCGCGGTAA"
+    rv_primer: "GGACTACNVGGGTWTCTAAT"
+    min_overlap: "19"
+    extra_params: "--discard-untrimmed"
+    
 #------------------------------------------------------------------------------#
-#                           Extract barcodes                                   #
+# BOTH_WF:                  Extract barcodes                                   #
 # rules: extract_barcodes, extract_barcodes_unassigned                         #
 #------------------------------------------------------------------------------#
 # These rules extracts barcodes from the reads, and at the end generates two   #
 # files: one with all the barcodes and a second one with the sequences without #
 # the barcodes.                                                                #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - c             This parameter allows to choose the barcode configuration:   #
 #                 "barcode_single_end". The reads starts with the barcode      #
 #                 sequence.                                                    #
@@ -325,14 +451,13 @@ demultiplexing:
 #                 Where X and Y are the lengths of the barcodes.               #
 # - extra_params  Extra parameters. See extract_barcodes.py -help.             #
 #------------------------------------------------------------------------------#
-
 ext_bc:
-  c: "barcode_single_end"
-  bc_length: "--bc1_len 12"
+  c: "barcode_paired_stitched"
+  bc_length: "--bc1_len 12 --bc2_len 12"
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                             Barcode correction                               #
+# BOTH_WF:                    Barcode correction                               #
 # rules: correct_barcodes, correct_barcodes_unassigned                         #
 #------------------------------------------------------------------------------#
 # This parameter allows error correction of barcodes. First, barcodes perfectly#
@@ -348,11 +473,14 @@ ext_bc:
 bc_mismatch: 2
 
 #------------------------------------------------------------------------------#
-#                             Split libraries                                  #
+# BOTH_WF:                    Split libraries                                  #
 # rule: split_libraries, split_libraries_rc                                    #
 #------------------------------------------------------------------------------#
 # These rules performs demultiplexing of Fastq sequence data where barcodes and#
 # sequences are contained in two separate fastq files.                         #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - q             Maximum unacceptable Phred quality score. e.g., for Q20 and  #
 #                 better, specify -q 19). [default: 19]                        #
 # - r             Maximum number of consecutive low quality base calls allowed #
@@ -365,11 +493,132 @@ bc_mismatch: 2
 split:
   q: "19"
   r: "5"
-  barcode_type:  "12"
+  barcode_type:  "24"
   extra_params: ""
 
+
 #------------------------------------------------------------------------------#
-#                         Align reads vs a reference database                  #
+# ASV_WF:                   dada2 trim and filter reads                        #
+# rule: dada2Filter                                                            #
+#------------------------------------------------------------------------------#
+# This parameters takes effect during the quality trimming a filtering within  #
+# dada2 implemented with the filterAndTrim() function.                         #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+# - generateQAplots   Cacabel already generates FastQC reports, however dada2  #
+#                     quality plots can be generated by passing "T".           #
+#                     Default "F"                                              #
+# - truncFW           Truncate forward reads after truncFW bases. Reads shorter# 
+#                     than this are discarded. Your reads must still overlap   #
+#                     after truncation in order to merge them later.           #      
+# - tuncRV            Truncate reverse reads after truncRV bases. Reads shorter# 
+#                     than this are discarded. Your reads must still overlap   #
+#                     after truncation in order to merge them later.           #
+# - maxEE_FW          After truncation, forward reads with higher than         # 
+#                     maxEE_FW "expected errors" will be discarded.            #
+# - maxEE_RV          After truncation, reverse reads with higher than         # 
+#                     maxEE_RV "expected errors" will be discarded.            #
+# - cpus              NUmber of threads|cpus.                                  #
+# - extra_params      Any extra parameter belonging to dada2's function        #
+#                     filterAndTrim(). e.g., "\",truncQ=2, rm.phix=TRUE\"".    #
+#                     Extra parameters with white spaces like the above should #
+#                     be supplied with escaped quotes.                         #
+# Note from dada2's tutorial ()                                                #
+# "The standard filtering parameters are starting points, not set in stone.    #
+# If you want to speed up downstream computation, consider tightening maxEE.   #
+# If too few reads are passing the filter, consider relaxing maxEE, perhaps    #
+# especially on the reverse reads (maxEE_RV), and reducing the truncLen to     #
+# remove low quality tails. Remember though, when choosing truncLen for        #
+# paired-end reads you must maintain overlap after truncation in order to      #
+# merge them later."                                                           #
+#------------------------------------------------------------------------------# 
+dada2_filter:
+  generateQAplots: "T"
+  truncFW: 200
+  truncRV: 190
+  maxEE_FW: 3
+  maxEE_RV: 5
+  cpus: 5
+  extra_params: "\",truncQ=2, rm.phix=TRUE\""
+
+#------------------------------------------------------------------------------#
+# ASV_WF:                          dada2 merge pairs                           #
+# rule: run_dada2                                                              #
+#------------------------------------------------------------------------------#
+# After denoising forward and reverse reads, these are assembled with the      #
+# mergePairs() function from dada2 package.                                    #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+# - minOverlap      Default 12. The minimum length of the overlap required for #
+#                   merging the forward and reverse reads.                     #
+# - maxMismatch     Default 0. The maximum mismatches allowed in the overlap   #
+#                   region.                                                    #
+#------------------------------------------------------------------------------#
+dada2_merge:
+  minOverlap: 12
+  maxMismatch: 0
+
+#------------------------------------------------------------------------------#
+# ASV_WF:                           dada2 generates ASV                        #
+# rule: run_dada2                                                              #
+#------------------------------------------------------------------------------#
+# Find true Amplicon sequence variants by denoising sequences with dada()      #
+# function.                                                                    #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+# - generateErrPLots    Default "F". Use "T" to generate the error plots       #
+#                       generated with the learned errors from the             #
+#                       learnErrors() function.                                #
+# - pool                If pool = "TRUE", the algorithm will pool together all #
+#                       samples prior to sample inference. If pool = "FALSE",  #
+#                       sample inference is performed on each sample           #
+#                       individually. If pool = "pseudo", the algorithm will   #
+#                       perform pseudo-pooling between individually processed  #
+#                       samples.                                               #
+# - chimeras            If "T" The samples in a sequence table are             #
+#                       independently checked for bimeras, and a consensus     #
+#                       decision on each sequence variant is made.             #
+#------------------------------------------------------------------------------#
+dada2_asv:
+  generateErrPlots: "T"
+  pool: "pseudo"
+  cpus: 5
+  chimeras : "T"
+  extra_params: "selfConsist=FALSE"
+
+#------------------------------------------------------------------------------#
+# ASV_WF:                             Assign taxonomy                          #
+# rule: run_dada2                                                              #
+#------------------------------------------------------------------------------#
+# The taxonomy assignation for the ASVs is performed within the dada2 package, #                               
+# by using the assignTaxonomy() function which use the RDP Naive Bayesian      #
+# Classifier algorithm.                                                        #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+# - db             Full path to reference database training files:             #
+#                  https://benjjneb.github.io/dada2/training.html              #
+# - add_sp         "T" or "F" assign genus-species binomials to the input      #
+#                  sequences by exact matching against a reference fasta using #
+#                  the addSpecies() function from dada2.                       #
+# - db_sps         If add_sp = "T" FUll path to the reference species file.    #
+# - extra_params   Any extra parameter belonging to dada2's function           #
+#                  assignaxonomy(). e.g., "\",minBoot=45, tryRC=TRUE\"".       #
+#                  Extra parameters with white spaces like the above should    #
+#                  be supplied with escaped quotes.                            #
+#------------------------------------------------------------------------------#
+dada2_taxonomy:
+  db: "silva_nr_v132_train_set.fa.gz"
+  add_sps: "T"
+  db_sps: "silva_species_assignment_v132.fa.gz"
+  extra_params: "minBoot=45"
+
+
+#------------------------------------------------------------------------------#
+# OTU_WF:                 Align reads vs a reference database                  #
 # rule: align_vs_reference                                                     #
 #------------------------------------------------------------------------------#
 # In some cases you may want to align the reads against a reference database   #
@@ -382,6 +631,9 @@ split:
 # and bear in mind that whenever you do this, you should only do it with small #
 # to medium sized data bases, because sequence alignment is computationally    #
 # costly.                                       	    		       #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - mothur_cmd:      Enter the command to call mothur [default: "mothur"].     #
 # - align:           "T" or "F" to run or skip this rule respectively.         #
 # - dbAligned:       Database to perform the alignment with.                   #
@@ -394,7 +646,7 @@ align_vs_reference:
   cpus: 4
 
 #------------------------------------------------------------------------------#
-#                             Remove adapters                                  #
+# OTU_WF:                     Remove adapters                                  #
 # rule: cutadapt                                                               #
 #------------------------------------------------------------------------------#
 # This rule runs Cutadapt. Cutadapt searches for adapters in the reads and     #
@@ -402,6 +654,9 @@ align_vs_reference:
 # reads that were present in the input file will also be present in the output #
 # file, some of them trimmed, some of them not.                                #
 # For details, see: http://cutadapt.readthedocs.io/en/stable/guide.html        #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - cutAdapters  if T (true) remove adapters, if F do not remove adapters      #
 #                [default: F].                                                 #
 # - command      Necessary command to invoque cutadapt [default: "cutadapt"].  #
@@ -427,57 +682,66 @@ align_vs_reference:
 #                -a GTGYCAGCMGCCGCGGTAA...ATTAGAWACCCVNGTAGTCC                 #
 # - extra_params Any extra parameter. A useful extra parameter here is         #
 #                --match-read-wildcards which interprets IUPAC wildcards in    #
-#                reads.                                                        # 
+#                reads or -O # to ensure the minimum overlap between a read and#
+#                one adapter to be found.                                      # 
 # More info and options at http://cutadapt.readthedocs.io/en/stable/guide.html #
 #------------------------------------------------------------------------------#
 cutAdapters: "F"
 cutadapt:
   command: "cutadapt"
   adapters: ""
-  extra_params: "--match-read-wildcards"
+  extra_params: "--match-read-wildcards  -O 19"
 
 #------------------------------------------------------------------------------#
-#                         Identify chimeric sequences                          #
+# OTU_WF:                 Identify chimeric sequences                          #
 # rule: search_chimera                                                         #
 #------------------------------------------------------------------------------#
 # This rule will be executed if and only if the option 'search' is set to "T"! #
 # Chimeric sequencesa are predicted using usearch61. This algorithm performs   #
 # both de novo (abundance based) chimera and reference based detection.        #
-# Unclustered sequences should be used as input rather than a representative   # 
-# sequence set, as the sequences will be clustered by usearch61 to get         #
-# abundance data. The results are all input sequences not flagged as chimeras. # 
+# Unclustered sequences are used as input rather than a representative sequence#
+# set, as the sequences will be clustered to get abundance data.               #
+# The results are all input sequences not flagged as chimeras.                 # 
+# This rule implements different methods for identifying chimeras, following,  #
+# more details about the available options.                                    #
 # For details, see: http://drive5.com/usearch/usearch_docs.html                #
-# It is possible to use two other methods: the Blast_fragments approach and    #
-# ChimeraSlayer, however we recomend to use usearch61 since it uses unclustered#
-# sequences unlike the other two algorithms, which use representative          #
-# sequences.                                                                   # 
 # If you are using usearch61, bear in mind that you can use a reference        #
 # database via extra_params, e.g., "-r /path/to/gold_db/gold.fa"               #
-# - method        This method could be any of the ones used by the script      #      
-#                 identify_chimeric_seqs, but because "usearch61" is the most  #
-#                 time-efficient, for the moment CASCABEL only provides        #
-#                 "usearch61".                                                 #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
+# - method        Select the method for chimera identification:                #
+#                  - "usearch61" This algorithm performs both de novo          #
+#                    (abundance based) chimera and reference based detection.  #
+#                    This method uses the usearch implementation within qiime's#
+#                    script identify_chimeric_seqs.py.                         #
+#                    To use reference based detection supply the reference     #
+#                    database via extra_params, e.g.:"-r /dbs/gold_db/gold.fa" #
+#                 For details, see: http://drive5.com/usearch/usearch_docs.html#
+#                  - "uchime_denovo" detect chimeras de novo (uses vsearch)    #
+#                  - "uchime_ref" detect chimeras using a reference database.  #
+#                     In this later case, user MUST suply extra_params:        #
+#                     "--db </full/path/to/db.fasta>" (i.e., path to gold db). #
 # - threads       Number of threads to use.                                    #
 # - extra_params  Any extra parameter. It is recomended to run the chimeric    #
 #                 search against a chimera database, e.g.,                     #
-#                 "-r /export/data/databases/gold_db/gold.fa"                  #
+#                 "-r /export/data/databases/gold_db/gold.fa" for "usearch61"  #
+#                 or "--db /export/data/databases/gold_db/gold.fa" for         #
+#                 "uchime_ref"                                                 #
 # - search        "T" | "F" (true or false) to execute chimera checking or not.#
 #------------------------------------------------------------------------------#
 chimera:
-  search: "T"
+  search: "F"
   method: "uchime_ref"
   threads: 10
-  extra_params: "--db /export/data01/databases/gold_db/gold.fa"
-#  method: "usearch61"
-#  threads: 6
-#  extra_params: "--reference_seqs_fp /export/data01/databases/silva/mothur/silva.gold.align"
+  extra_params: "--db /{FULL_PATH}/gold.fa"
 
 #------------------------------------------------------------------------------#
-#                          Length filtering                                    #
+# BOTH_WF:           Length filtering for OTU or ASV                           #
 # rule: remove_short_long_reads                                                #
 #------------------------------------------------------------------------------#
-# This rule executes a python script in order to filter the reads based on     #
-# their length.                                                                #
+# This rule executes a script in order to filter the reads based on their      #
+# length.                                                                      #
 # First, this script generates a histogram based on the read lengths           #
 # distribution. Next, this histogram is used by the same script in different   # 
 # ways depending on the pipeline's execution mode (interactive or automatic).  #
@@ -518,18 +782,21 @@ chimera:
 rm_reads:
   non_interactive_behaviour: "AVG"
   offset: 10
-  longs: 1000
-  shorts: 10
+  longs: 220
+  shorts: 260
 
 
 #------------------------------------------------------------------------------#
-#                               Dereplicate                                    #
+# OTU_WF:                       Dereplicate                                    #
 # rule: dereplicate, pick_derep_representatives                                #
 #------------------------------------------------------------------------------#
 # This parameters allows the user to dereplicate the sequences over the FULL   #
 # LENGTH (100% identity) before applying any OTU picking starategy. This is    #
 # adviced for very large datasets, when OTU picking methods take too long or   #
 # have memory issues.                                                          #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - dereplicate    Dereplicate sequences over their full length (F/T)          #
 #                  [default: "F"].                                             #
 # - vsearch_cmd    Command for calling vsearch [default: "vsearch"].           #
@@ -547,7 +814,7 @@ derep:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                               OTU picking                                    #
+# OTU_WF:                       OTU picking                                    #
 # rule: cluster_OTUs                                                           #
 #------------------------------------------------------------------------------#
 # The OTU picking step assigns similar sequences to operational taxonomic      #
@@ -558,6 +825,9 @@ derep:
 # collection. Swarm takes a different clustering approach which does not       #
 # require setting a threshold. Instead, clusters are formed using sequence     # 
 # graphs and abundance.                                                        #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - s              Sequence similarity threshold between 0 and 1. This applies #
 #                  for the following methods 'm': uclust, uclust_ref, usearch, #
 #                  usearch_ref, usearch61,  usearch61_ref, sumaclust, and      #
@@ -574,10 +844,13 @@ pickOTU:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                        Select representative sequences                       #
+# OTU_WF:                Select representative sequences                       #
 # rule: pick_representatives                                                   #
 #------------------------------------------------------------------------------#
 # After picking OTUs, this rule picks a representative sequence for each OTU.  #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - m             Method for picking representative sequences. Valid choices   #
 #                 are: random, longest, most_abundant, first [default: "first"]# 
 #                 Note: "first" chooses the cluster seed when picking otus with#
@@ -590,10 +863,13 @@ pickRep:
   extra_params: ""
 
 ################################################################################
-#                            Assign taxonomy                                   #
+# OTU_WF:                    Assign taxonomy                                   #
 # rule: assign_taxonomy                                                        #
 #------------------------------------------------------------------------------#
 # Performs taxonomy assignment for the representative sequences.               #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # This step can be performed using three different tools (parameter 'tool'):   #
 # 1) VSEARCH.  Compare target sequences 'db_file' to the query sequences to    #
 #              assign taxonomy, using global pairwise alignment.               #
@@ -715,19 +991,19 @@ assignTaxonomy:
   blast:
     command: "blastn"
     blast_db: ""
-    fasta_db: "silva132_99.fna"
-    mapFile: "taxonomy_7_levels.txt"
+    fasta_db: ""
+    mapFile: ""
     taxo_separator: "';'" 
-    evalue: "0.001"
+    evalue: "0.0001"
     max_target_seqs: 5
     jobs: 10
-    identity: 0.5   
+    identity: 0.8   
     extra_params: ""
   vsearch:
     command: "vsearch"
-    db_file: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/rep_set/rep_set_16S_only/97/silva_132_97_16S.fna"
-    mapFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/taxonomy/16S_only/97/taxonomy_7_levels.txt"
-    identity: 0.5
+    db_file: "/export/data01/databases/silva/r132/fastas/SILVA_132_SSURef_tax_silva.fasta"
+    mapFile: "/export/data01/databases/silva/r132/fastas/taxmap_embl_ssu_ref_132_taxid.map"
+    identity: 0.8
     taxo_separator: "';'" 
     max_target_seqs: 5 
     identity_definition: 2  
@@ -735,19 +1011,22 @@ assignTaxonomy:
     extra_params: "--top_hits_only --maxrejects 32"
   qiime:
     method: "uclust"
-    mapFile: "97_otu_taxonomy.txt."
+    mapFile: "97_otu_taxonomy.txt"
     dbFile: "97_otus.fasta"
     dbType: "-r"
     jobs: 10
     extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                               Make OTU Table                                 #
+# OTU_WF:                       Make OTU Table                                 #
 # rule: make_otu_table                                                         #
 #------------------------------------------------------------------------------#
 # The rule tabulates the number of times an OTU is found in each sample, and   #
 # adds the taxonomic predictions for each OTU in the last column if a taxonomy #
 # file is supplied.                                                            #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - extra_params  Any extra desired parameter. Run 'make_otu_table.py --help'  #
 #                 to see all the options.                                      #
 #------------------------------------------------------------------------------#
@@ -755,10 +1034,13 @@ makeOtu:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                          Filter OTUs from OTU Table                          #
+# BOTH_WF:                 Filter OTUs / ASV from table                        #
 # rule: filter_otu                                                             #
 #------------------------------------------------------------------------------#
-# This rule filters the otu table in order to remove singletons.               #
+# This rule filters the OTU / ASV table in order to remove singletons.         #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - n             The minimum total observation count of an OTU for that otu   #
 #                 to be retained [default: "2 ]                                #
 # - extra_params  Any extra desired parameter. Run                             #
@@ -769,7 +1051,7 @@ filterOtu:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                               Biom convert                                   #
+# OTU_WF:                       Biom convert                                   #
 # rule: convert_table                                                          #
 #------------------------------------------------------------------------------#
 # This rule converts the OTU biom table into a tab separated OTU table.        #
@@ -792,13 +1074,17 @@ biom:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                           summarize_taxa.py                                  #
+# BOTH_WF:                  summarize taxonomy                                 #
 # rule: summarize_taxa                                                         #
 #------------------------------------------------------------------------------#
 # This rule provides summary information of the representation of taxonomic    #
-# groups within each sample. It takes an OTU table that contains taxonomic     #
-# information as input. By default, the relative abundance of each taxonomic   #
-# group will be reported, but the raw counts can be returned if "-a" is passed.#
+# groups within each sample. It takes an OTU / ASV table that contains         #
+# taxonomic information as input. By default, the relative abundance of each   #
+# taxonomic group will be reported, but the raw counts can be returned if "-a" #
+# is passed.                                                                   #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - extra_params: Any extra desired parameter. Run 'summarize_taxa.py --help'  #
 #                 to see all the options.                                      #
 #                                                                              #
@@ -815,26 +1101,30 @@ summTaxa:
 
 
 #------------------------------------------------------------------------------#
-#                          Filter fasta file                                   #
+# BOTH_WF:                 Filter fasta file                                   #
 # rule: filter_rep_seqs                                                        #
 #------------------------------------------------------------------------------#
-# This rule performs OTU table-based filtering: Keep all sequences that occur  #
-# in an OTU table.                                                             #
-# Params:                                                                      #
+# This rule performs OTU/ASV table-based filtering: Keep all sequences that    #
+# occur in an OTU/ASV table.                                                   #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - extra_params  Any extra desired parameter. Run 'filter_fasta.py --help' to #
 #                 see all options.                                             #
 #------------------------------------------------------------------------------#
 filterFasta:
   extra_params: ""
 
-
-
 #------------------------------------------------------------------------------#
-#                       Align representative sequences                         #
+# OTU_WF:                      Align representative sequences                  #
 # rule: align_rep_seqs                                                         #
+# To be implemented within ASV_WF                                              #
 #------------------------------------------------------------------------------#
 # This rule aligns sequences in a fasta file to each other or to a template    #
 # sequence alignment, depending on the method chosen.                          #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - align          [T/F] The user can skip this rule by setting 'align' to "F" #
 #                  [default: "T"].                                             #
 # -m               Method for aligning sequences. Valid choices are: "pynast", #
@@ -849,13 +1139,17 @@ alignRep:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                           Filter Alignment                                   #
+# OTU_WF:                   Filter Alignment                                   #
 # rule: filter_alignment                                                       #
+# To be implemented within ASV_WF                                              #
 #------------------------------------------------------------------------------#
 # This rule will remove positions which are gaps in every sequence.            #
 # Additionally, the user can supply a lanemask file, that defines which        #
 # positions should be included when building the tree, and which should be     #
 # ignored.                                                                     #
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - extra_params: Any extra desired parameter. Run 'filter_alignment.py --help'# 
 #                 to see all options.                                          #
 #------------------------------------------------------------------------------#
@@ -863,10 +1157,14 @@ filterAlignment:
   extra_params: ""
 
 #------------------------------------------------------------------------------#
-#                           make phylogeny                                     #
+# OTU_WF:                   make phylogeny                                     #
 # rule: make_tree                                                              #
+# To be implemented within ASV_WF                                              #
 #------------------------------------------------------------------------------#
 # This rule produces a phylogenetic tree from a multiple sequence alignment.   # 
+#                                                                              #
+#-----------------------------       PARAMS       -----------------------------#
+#                                                                              #
 # - method:       Method for generating the tree. Valid choices are:           #
 #                 "clustalw", "raxml_v730", "muscle", "fasttree", "clearcut".  # 
 #                 [default: "fasttree"].                                       #

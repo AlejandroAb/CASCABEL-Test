@@ -26,15 +26,15 @@ This "mini tutorial" assumes that you already have installed and have a basic id
 
 In order to use this data for testing purpouse, you only need to download the rawdata directory and the configuration file.
 
-Onece you have downloaded this data the next step is to initialize the library structure*. For this, just locate on your CASCABEL directory and execute the following command:
+Once you have downloaded this data the next step is to initialize the library structure*. For this, just locate on your CASCABEL directory and execute the following command:
 ```sass
 #init winter library
 Scripts/init_sample.sh cascabel_project winter /absolute/path/to/sampleList_mergedBarcodes_winter.txt /absolute/path/to/LCWinter_R1.100K.fastq.gz /absolute/path/to/LCWinter_R2.100K.fastq.gz
 
 #init summer library
-Scripts/init_sample.sh cascabel_project winter /absolute/path/to/sampleList_mergedBarcodes_summer.txt /absolute/path/to/LCSummer_R1.100K.fastq.gz /absolute/path/to/LCSummer_R2.100K.fastq.gz
+Scripts/init_sample.sh cascabel_project summer /absolute/path/to/sampleList_mergedBarcodes_summer.txt /absolute/path/to/LCSummer_R1.100K.fastq.gz /absolute/path/to/LCSummer_R2.100K.fastq.gz
 ```
-_*Please note that you have only to perform this step for executing a multiple library RUN, in most of the cases you just have to supply the barcode file and raw data information directly into the configuration file_
+_*Please note that you have only to perform this step for executing a multiplex library RUN, in most of the cases you just have to supply the barcode file and raw data information directly into the configuration file_
 
 If you want to generate the DAG (Directed Acyclic Graph) of jobs, as the one supplied on this repo, you can do it with the following command:
 
@@ -45,3 +45,6 @@ To run the pipeline you just need to be located at CASCABEL's directory and exec
 ```
 snakemake --configfile config.summer_winter.yaml
 ```
+
+**Notice** that for the taxonomy assignation within the OTU workflow we are using the mapping files supplied in Cascabel repo at [Cascabel/dbs](https://github.com/AlejandroAb/CASCABEL/tree/master/dbs) so you still need to download the fasta file: [SSURef 138](https://ftp.arb-silva.de/release_132/Exports/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz)  
+And for the ASV the [Silva 138 trained database](https://zenodo.org/record/3731176#.XorhSKgzZPY)
