@@ -1,0 +1,3 @@
+summer	/{FULL-PATH}/CASCABEL-Test/rawdata/LCSummer_R1.100K.fastq.gz	/{FULL-PATH}/CASCABEL-Test/rawdata/LCSummer_R2.100K.fastq.gz	/{FULL-PATH}/CASCABEL-Test/rawdata/sampleList_mergedBarcodes_summer.txt
+winter	/{FULL-PATH}/CASCABEL-Test/rawdata/LCWinter_R1.100K.fastq.gz	/{FULL-PATH}/CASCABEL-Test/rawdata/LCWinter_R2.100K.fastq.gz	/{FULL-PATH}/CASCABEL-Test/rawdata/sampleList_mergedBarcodes_winter.txt
+ 
