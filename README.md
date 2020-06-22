@@ -12,8 +12,8 @@ This test data consist of a subset of 100,000 random amplicon sequencing peared 
   - **LCSummer_R2.100K.fastq.gz** Reverse raw reads from the *"summer"* library.
   - **LCWinter_R1.100K.fastq.gz** Forward raw reads from the *"winter"* library.
   - **LCWinter_R2.100K.fastq.gz** Reverse raw reads from the *"winter"* library.
-  - **sampleList_mergedBarcodes_summer.txt** Barcode data for demultiplexing the "*summer"* library 
-  - **sampleList_mergedBarcodes_winter.txt** Barcode data for demultiplexing the "*winter"* library
+  - **sampleList_mergedBarcodes_summer.txt** Barcode mapping file for demultiplexing the *"summer"* library 
+  - **sampleList_mergedBarcodes_winter.txt** Barcode mapping file for demultiplexing the *"winter"* library
 - **results/** Directory with some of the main expected results from _CASCABEL_.
   - **otuTable_noSingletons.txt** OTU table with with singletons filtered
   - **report_vsearch.zip** _CASCABEL's_ OTU final report
