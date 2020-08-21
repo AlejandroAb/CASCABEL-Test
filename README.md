@@ -22,7 +22,7 @@ Here, you can also find the configuration and some of the results for the mock c
   - **representative_seq_set_noSingletons_aligned_pfiltered.fasta.gz** Alignment performed with the representative sequences of the filtered OTU table.
   - **representative_seq_set_tax_assignments.txt** Taxonomy assignation results for the OTU workflow. 
   - **summary.tar.gz** OTU tables summarized at different taxonomy levels (phylum, class, order, famyly, genus and species)
-- **MOCK_ANALYSIS/** Directory with configuration files and  _CASCABEL_.
+- **MOCK_ANALYSIS/** Directory with configuration files and results for the mock community analysis conducted for the evaluation of  _CASCABEL_.
 
   
 ## How to use this data
