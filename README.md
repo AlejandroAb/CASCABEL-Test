@@ -1,6 +1,7 @@
 # CASCABEL-Test
 In this repository you fill find test data for [CASCABEL](https://github.com/AlejandroAb/CASCABEL) and some of it's expected results.
 This test data consist of a subset of 100,000 random amplicon sequencing peared reads from water column from Lacamas Lake (WA, US), NCBI's Bioproject [PRJNA524776](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA524776)   
+Here, you can also find the configuration and some of the results for the mock community analyses performed for CASCABEL.
 
 ## Files in this repo
 
@@ -21,6 +22,8 @@ This test data consist of a subset of 100,000 random amplicon sequencing peared 
   - **representative_seq_set_noSingletons_aligned_pfiltered.fasta.gz** Alignment performed with the representative sequences of the filtered OTU table.
   - **representative_seq_set_tax_assignments.txt** Taxonomy assignation results for the OTU workflow. 
   - **summary.tar.gz** OTU tables summarized at different taxonomy levels (phylum, class, order, famyly, genus and species)
+- **MOCK_ANALYSIS/** Directory with configuration files and  _CASCABEL_.
+
   
 ## How to use this data
 
