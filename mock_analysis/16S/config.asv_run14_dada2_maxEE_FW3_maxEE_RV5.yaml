@@ -628,10 +628,12 @@ dada2_asv:
 # downloaded.                                                                  #  
 #------------------------------------------------------------------------------#
 dada2_taxonomy:
-  db: "/export/data01/databases/silva/r132/dada2/silva_nr_v132_train_set.fa.gz"
-  add_sps: "T"
-  db_sps: "/export/data01/databases/silva/r132/dada2/silva_species_assignment_v132.fa.gz"
-  extra_params: "minBoot=45"
+  db: "silva_nr_v138_train_set.fa.gz"
+  extra_params: ""
+  add_sps:
+    add: "T"
+    db_sps: "silva_species_assignment_v138.fa.gz"
+    extra_params: "allowMultiple="T"
 
 
 #------------------------------------------------------------------------------#

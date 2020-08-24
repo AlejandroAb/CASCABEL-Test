@@ -69,7 +69,7 @@ LIBRARY: ["SRR3163887"]
 # user must assign this value via the command line.                            #
 # i.e:  --config RUN=run_name                                                  #
 #------------------------------------------------------------------------------#
-RUN: "run15_dada2_maxEE_FW5_maxEE_RV10"
+RUN: "run15_dada2_maxEE_FW5_maxEE_RV10_multSpecies"
 
 #------------------------------------------------------------------------------#
 #                           Description                                        #
@@ -77,7 +77,7 @@ RUN: "run15_dada2_maxEE_FW5_maxEE_RV10"
 # Brief description of the run. Any description written here will be included  #
 # in the final report. This field is not mandatory so it can remain empty.     #
 #------------------------------------------------------------------------------#
-description: ""
+description: "run 15 from Harry but allowing multiple species hits in tax assignment"
 
 #------------------------------------------------------------------------------#
 #                             INPUT TYPE                                       #
@@ -629,10 +629,11 @@ dada2_asv:
 #------------------------------------------------------------------------------#
 dada2_taxonomy:
   db: "/export/data01/databases/silva/r132/dada2/silva_nr_v132_train_set.fa.gz"
-  add_sps: "T"
-  db_sps: "/export/data01/databases/silva/r132/dada2/silva_species_assignment_v132.fa.gz"
-  extra_params: "minBoot=45"
-
+  extra_params: ""
+  add_sps:
+    add: "T"
+    extra_params: "allowMultiple=TRUE"
+    db_sps: "/export/data01/databases/silva/r132/dada2/silva_species_assignment_v132.fa.gz"
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                 Align reads vs a reference database                  #
