@@ -69,7 +69,7 @@ LIBRARY: ["SRR3231826","SRR3231837","SRR3231838","SRR3231900","SRR3231901","SRR3
 # user must assign this value via the command line.                            #
 # i.e:  --config RUN=run_name                                                  #
 #------------------------------------------------------------------------------#
-RUN: "config_16_silva138"
+RUN: "config_7"
 
 #------------------------------------------------------------------------------#
 #                           Description                                        #
@@ -314,7 +314,7 @@ fastQC:
 pear:
   command: "pear"
   t: 100
-  v: 40
+  v: 10
   j: 6
   p: 0.05
   extra_params: ""
@@ -624,9 +624,11 @@ dada2_asv:
 #------------------------------------------------------------------------------#
 dada2_taxonomy:
   db: ""
-  add_sps: "T"
-  db_sps: ""
-  extra_params: "minBoot=45"
+  extra_params: ""
+  add_sps:
+    add: "T"
+    db_sps: ""
+    extra_params: "allowMultiple="T"
 
 
 #------------------------------------------------------------------------------#
@@ -794,8 +796,8 @@ chimera:
 rm_reads:
   non_interactive_behaviour: "AVG"
   offset: 10
-  longs: 390
-  shorts: 325
+  longs: 450
+  shorts: 300
 
 
 #------------------------------------------------------------------------------#
@@ -1000,7 +1002,7 @@ pickRep:
 #    - jobs:           Number of jobs to start in parallel                     #
 #------------------------------------------------------------------------------#
 assignTaxonomy:
-  tool: "vsearch"
+  tool: "qiime"
   blast:
     command: "blastn"
     blast_db: ""
@@ -1008,17 +1010,17 @@ assignTaxonomy:
     mapFile: ""
     taxo_separator: "';'" 
     evalue: "0.0001"
-    max_target_seqs: 10
+    max_target_seqs: 5
     jobs: 10
-    identity: 0.9   
+    identity: 0.8   
     extra_params: ""
   vsearch:
     command: "vsearch"
-    db_file: "/export/data01/databases/silva/r138/SILVA_138_SSURef_NR99_tax_silva.fasta.gz"
-    mapFile: "/export/data01/databases/silva/r138/taxmap_embl-ebi_ena_ssu_ref_nr99_138.cascabel.txt"
-    identity: 0.9
+    db_file: "silva132_99.fna"
+    mapFile: "taxonomy_7_levels.txt"
+    identity: 0.8
     taxo_separator: "';'" 
-    max_target_seqs: 10 
+    max_target_seqs: 5 
     identity_definition: 2  
     jobs: 10
     extra_params: "--top_hits_only --maxrejects 32"
@@ -1060,8 +1062,8 @@ makeOtu:
 #                 'filter_otus_from_otu_table.py --help' to  see all options.  #
 #------------------------------------------------------------------------------#
 filterOtu:
-  n: "5"
-  extra_params: "-s 3"
+  n: "2"
+  extra_params: ""
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                       Biom convert                                   #
@@ -1110,7 +1112,7 @@ biom:
 # Level 7 = Species.                                                           #
 #------------------------------------------------------------------------------#
 summTaxa:
-  extra_params: "--level 2,3,4,5,6,7,8"
+  extra_params: "--level 2,3,4,5,6,7"
 
 
 #------------------------------------------------------------------------------#

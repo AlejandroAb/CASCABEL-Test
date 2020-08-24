@@ -38,7 +38,7 @@
 # For a list for all the interactive checkpoints take a look at the following  #
 # link: https://github.com/AlejandroAb/CASCABEL/wiki#5-interactive-mode        #
 #------------------------------------------------------------------------------#
-interactive : "F"
+interactive : "T"
 
 #------------------------------------------------------------------------------#
 #                             Project Name                                     #
@@ -69,7 +69,7 @@ LIBRARY: ["SRR5838515","SRR5838516","SRR5838522"]
 # user must assign this value via the command line.                            #
 # i.e:  --config RUN=run_name                                                  #
 #------------------------------------------------------------------------------#
-RUN: "config_6"
+RUN: "config_1"
 
 #------------------------------------------------------------------------------#
 #                           Description                                        #
@@ -77,7 +77,7 @@ RUN: "config_6"
 # Brief description of the run. Any description written here will be included  #
 # in the final report. This field is not mandatory so it can remain empty.     #
 #------------------------------------------------------------------------------#
-description: "Chimera search:T; OTU=swarm d=1 tax uclust with unite"
+description: "Chimera search:F; OTU=uclust at 97% tax uclust w/ unite"
 
 #------------------------------------------------------------------------------#
 #                             INPUT TYPE                                       #
@@ -624,9 +624,11 @@ dada2_asv:
 #------------------------------------------------------------------------------#
 dada2_taxonomy:
   db: ""
-  add_sps: "T"
-  db_sps: ""
-  extra_params: "minBoot=45"
+  extra_params: ""
+  add_sps:
+    add: "T"
+    db_sps: ""
+    extra_params: "allowMultiple="T"
 
 
 #------------------------------------------------------------------------------#
@@ -743,10 +745,10 @@ cutadapt:
 # - search        "T" | "F" (true or false) to execute chimera checking or not.#
 #------------------------------------------------------------------------------#
 chimera:
-  search: "T"
+  search: "F"
   method: "uchime_ref"
   threads: 10
-  extra_params: "--db /export/data01/databases/unite/uchime_release/uchime_reference_dataset_28.06.2017/uchime_reference_dataset_28.06.2017.fasta"
+  extra_params: "--db /{FULL_PATH}/gold.fa"
 
 #------------------------------------------------------------------------------#
 # BOTH_WF:           Length filtering for OTU or ASV                           #
@@ -851,9 +853,9 @@ derep:
 #------------------------------------------------------------------------------#
 pickOTU:
   s: "0.97"
-  m: "swarm"
+  m: "uclust"
   cpus: "6"
-  extra_params: "--swarm_resolution 1"
+  extra_params: ""
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                Select representative sequences                       #
@@ -1015,8 +1017,8 @@ assignTaxonomy:
     extra_params: ""
   vsearch:
     command: "vsearch"
-    db_file: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/rep_set/rep_set_18S_only/94/silva_132_94_18S.fna"
-    mapFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/taxonomy/18S_only/94/taxonomy_7_levels.txt"
+    db_file: ""
+    mapFile: ""
     identity: 0.8
     taxo_separator: "';'" 
     max_target_seqs: 5 

@@ -69,7 +69,7 @@ LIBRARY: ["SRR5838515","SRR5838516","SRR5838522"]
 # user must assign this value via the command line.                            #
 # i.e:  --config RUN=run_name                                                  #
 #------------------------------------------------------------------------------#
-RUN: "config_3"
+RUN: "config_13"
 
 #------------------------------------------------------------------------------#
 #                           Description                                        #
@@ -77,7 +77,7 @@ RUN: "config_3"
 # Brief description of the run. Any description written here will be included  #
 # in the final report. This field is not mandatory so it can remain empty.     #
 #------------------------------------------------------------------------------#
-description: "Chimera search:F; OTU=uclust at 94% tax unite%"
+description: "Chimera search:F; OTU=swarm d=2 tax vsearch with unite"
 
 #------------------------------------------------------------------------------#
 #                             INPUT TYPE                                       #
@@ -624,9 +624,11 @@ dada2_asv:
 #------------------------------------------------------------------------------#
 dada2_taxonomy:
   db: ""
-  add_sps: "T"
-  db_sps: ""
-  extra_params: "minBoot=45"
+  extra_params: ""
+  add_sps:
+    add: "T"
+    db_sps: ""
+    extra_params: "allowMultiple="T"
 
 
 #------------------------------------------------------------------------------#
@@ -746,7 +748,7 @@ chimera:
   search: "F"
   method: "uchime_ref"
   threads: 10
-  extra_params: "--db /{FULL_PATH}/gold.fa"
+  extra_params: "--db /export/data01/databases/unite/uchime_release/uchime_reference_dataset_28.06.2017/uchime_reference_dataset_28.06.2017.fasta"
 
 #------------------------------------------------------------------------------#
 # BOTH_WF:           Length filtering for OTU or ASV                           #
@@ -850,10 +852,10 @@ derep:
 #                  options.                                                    # 
 #------------------------------------------------------------------------------#
 pickOTU:
-  s: "0.94"
-  m: "uclust"
+  s: ""
+  m: "swarm"
   cpus: "6"
-  extra_params: ""
+  extra_params: "--swarm_resolution 2"
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                Select representative sequences                       #
@@ -1001,7 +1003,7 @@ pickRep:
 #    - jobs:           Number of jobs to start in parallel                     #
 #------------------------------------------------------------------------------#
 assignTaxonomy:
-  tool: "qiime"
+  tool: "vsearch"
   blast:
     command: "blastn"
     blast_db: ""
@@ -1015,8 +1017,8 @@ assignTaxonomy:
     extra_params: ""
   vsearch:
     command: "vsearch"
-    db_file: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/rep_set/rep_set_18S_only/94/silva_132_94_18S.fna"
-    mapFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/taxonomy/18S_only/94/taxonomy_7_levels.txt"
+    db_file: "/export/data01/databases/unite/qiime_release/sh_qiime_release_04.02.2020/sh_refs_qiime_ver8_97_04.02.2020.fasta"
+    mapFile: "/export/data01/databases/unite/qiime_release/sh_qiime_release_04.02.2020/sh_taxonomy_qiime_ver8_97_04.02.2020.txt"
     identity: 0.8
     taxo_separator: "';'" 
     max_target_seqs: 5 

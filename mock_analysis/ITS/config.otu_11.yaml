@@ -47,7 +47,7 @@ interactive : "F"
 # be the same name used as the first parameter with the init_sample.sh script  #
 # (if used for multiple libraries).                                            #
 #------------------------------------------------------------------------------#
-PROJECT: "18S_benchmark"
+PROJECT: "ITS_Benchmark"
 
 #------------------------------------------------------------------------------#
 #                            LIBRARIES/SAMPLES                                 #
@@ -57,7 +57,8 @@ PROJECT: "18S_benchmark"
 # Include each library name surrounded by quotes, and comma separated.         #
 # i.e LIBRARY:  ["LIB_1","LIB_2",..."LIB_N"]                                   #
 #------------------------------------------------------------------------------#
-LIBRARY: ["SRR3231826","SRR3231837","SRR3231838","SRR3231900","SRR3231901","SRR3231902"]
+LIBRARY: ["SRR5838515","SRR5838516","SRR5838522"]
+
 #------------------------------------------------------------------------------#
 #                               RUN                                            #
 #------------------------------------------------------------------------------#
@@ -68,7 +69,7 @@ LIBRARY: ["SRR3231826","SRR3231837","SRR3231838","SRR3231900","SRR3231901","SRR3
 # user must assign this value via the command line.                            #
 # i.e:  --config RUN=run_name                                                  #
 #------------------------------------------------------------------------------#
-RUN: "config_17"
+RUN: "config_11"
 
 #------------------------------------------------------------------------------#
 #                           Description                                        #
@@ -76,7 +77,7 @@ RUN: "config_17"
 # Brief description of the run. Any description written here will be included  #
 # in the final report. This field is not mandatory so it can remain empty.     #
 #------------------------------------------------------------------------------#
-description: "Chimera search:T; ASV maxEE_FW: 3, maxEE_RV:5  tax silva138"
+description: "Chimera search:F; OTU=swarm d=1 tax vsearch with unite"
 
 #------------------------------------------------------------------------------#
 #                             INPUT TYPE                                       #
@@ -226,7 +227,7 @@ krona:
 #                                                                              # 
 # - ANALYSIS_TYPE    "OTU" or "ASV". Defines the type analysis                 #
 #------------------------------------------------------------------------------#
-ANALYSIS_TYPE: "ASV"
+ANALYSIS_TYPE: "OTU"
 
 
 #------------------------------------------------------------------------------#
@@ -545,7 +546,7 @@ split:
 # merge them later."                                                           #
 #------------------------------------------------------------------------------# 
 dada2_filter:
-  generateQAplots: "T"
+  generateQAplots: "F"
   truncFW: 200
   truncRV: 200
   maxEE_FW: 3
@@ -594,7 +595,7 @@ dada2_merge:
 #                       decision on each sequence variant is made.             #
 #------------------------------------------------------------------------------#
 dada2_asv:
-  generateErrPlots: "T"
+  generateErrPlots: "F"
   pool: "pseudo"
   cpus: 5
   chimeras : "T"
@@ -622,10 +623,12 @@ dada2_asv:
 #                  be supplied with escaped quotes.                            #
 #------------------------------------------------------------------------------#
 dada2_taxonomy:
-  db: "/export/data01/databases/silva/r132/dada2/silva_nr_v132_train_set.fa.gz"
-  add_sps: "T"
-  db_sps: "/export/data01/databases/silva/r132/dada2/silva_species_assignment_v132.fa.gz"
-  extra_params: "minBoot=45"
+  db: ""
+  extra_params: ""
+  add_sps:
+    add: "T"
+    db_sps: ""
+    extra_params: "allowMultiple="T"
 
 
 #------------------------------------------------------------------------------#
@@ -697,7 +700,7 @@ align_vs_reference:
 #                one adapter to be found.                                      # 
 # More info and options at http://cutadapt.readthedocs.io/en/stable/guide.html #
 #------------------------------------------------------------------------------#
-cutAdapters: "F"
+cutAdapters: "T"
 cutadapt:
   command: "cutadapt"
   adapters: "-g  ^CTTGGTCATTTAGAGGAAGTAA...GCATCGATGAAGAACGCAGC -g ^GATGAAGAACGYAGYRAA...CGAGTGAAGMGGBAAVAG"
@@ -745,7 +748,7 @@ chimera:
   search: "F"
   method: "uchime_ref"
   threads: 10
-  extra_params: "--db /{FULL_PATH}/gold.fa"
+  extra_params: "--db /export/data01/databases/unite/uchime_release/uchime_reference_dataset_28.06.2017/uchime_reference_dataset_28.06.2017.fasta"
 
 #------------------------------------------------------------------------------#
 # BOTH_WF:           Length filtering for OTU or ASV                           #
@@ -849,10 +852,10 @@ derep:
 #                  options.                                                    # 
 #------------------------------------------------------------------------------#
 pickOTU:
-  s: "0.97"
-  m: "uclust"
+  s: ""
+  m: "swarm"
   cpus: "6"
-  extra_params: ""
+  extra_params: "--swarm_resolution 1"
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                Select representative sequences                       #
@@ -1014,8 +1017,8 @@ assignTaxonomy:
     extra_params: ""
   vsearch:
     command: "vsearch"
-    db_file: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/rep_set/rep_set_18S_only/94/silva_132_94_18S.fna"
-    mapFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/taxonomy/18S_only/94/taxonomy_7_levels.txt"
+    db_file: "/export/data01/databases/unite/qiime_release/sh_qiime_release_04.02.2020/sh_refs_qiime_ver8_97_04.02.2020.fasta"
+    mapFile: "/export/data01/databases/unite/qiime_release/sh_qiime_release_04.02.2020/sh_taxonomy_qiime_ver8_97_04.02.2020.txt"
     identity: 0.8
     taxo_separator: "';'" 
     max_target_seqs: 5 
@@ -1024,8 +1027,8 @@ assignTaxonomy:
     extra_params: "--top_hits_only --maxrejects 32"
   qiime:
     method: "uclust"
-    mapFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/taxonomy/18S_only/94/taxonomy_7_levels.txt"
-    dbFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/rep_set/rep_set_18S_only/94/silva_132_94_18S.fna"
+    mapFile: "/export/data01/databases/unite/qiime_release/sh_qiime_release_04.02.2020/sh_taxonomy_qiime_ver8_97_04.02.2020.txt"
+    dbFile: "/export/data01/databases/unite/qiime_release/sh_qiime_release_04.02.2020/sh_refs_qiime_ver8_97_04.02.2020.fasta"
     dbType: "-r"
     jobs: 15
     extra_params: ""

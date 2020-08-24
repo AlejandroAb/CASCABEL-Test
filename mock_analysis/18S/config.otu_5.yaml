@@ -47,7 +47,7 @@ interactive : "F"
 # be the same name used as the first parameter with the init_sample.sh script  #
 # (if used for multiple libraries).                                            #
 #------------------------------------------------------------------------------#
-PROJECT: "ITS_Benchmark"
+PROJECT: "18S_benchmark"
 
 #------------------------------------------------------------------------------#
 #                            LIBRARIES/SAMPLES                                 #
@@ -57,7 +57,7 @@ PROJECT: "ITS_Benchmark"
 # Include each library name surrounded by quotes, and comma separated.         #
 # i.e LIBRARY:  ["LIB_1","LIB_2",..."LIB_N"]                                   #
 #------------------------------------------------------------------------------#
-LIBRARY: ["SRR5838515","SRR5838516","SRR5838522"]
+LIBRARY: ["SRR3231826","SRR3231837","SRR3231838","SRR3231900","SRR3231901","SRR3231902"]
 
 #------------------------------------------------------------------------------#
 #                               RUN                                            #
@@ -69,7 +69,7 @@ LIBRARY: ["SRR5838515","SRR5838516","SRR5838522"]
 # user must assign this value via the command line.                            #
 # i.e:  --config RUN=run_name                                                  #
 #------------------------------------------------------------------------------#
-RUN: "config_7"
+RUN: "config_5"
 
 #------------------------------------------------------------------------------#
 #                           Description                                        #
@@ -77,7 +77,7 @@ RUN: "config_7"
 # Brief description of the run. Any description written here will be included  #
 # in the final report. This field is not mandatory so it can remain empty.     #
 #------------------------------------------------------------------------------#
-description: "Chimera search:F; OTU=swarm d=2 tax uclust with unite"
+description: ""
 
 #------------------------------------------------------------------------------#
 #                             INPUT TYPE                                       #
@@ -124,7 +124,7 @@ gzip_input: "T"
 fw_reads: ""
 rv_reads: ""
 metadata: ""
-input_files: "/export/lv3/scratch/projects_AA/ITS_benchmark/input_pema_samples.tsv"
+input_files: "/export/lv3/scratch/projects_AA/18S_benchmark/input_files_for_cascabel.txt"
 
 ################################################################################
 #                          REPORT PARAMETER SECTION                            #
@@ -314,9 +314,9 @@ fastQC:
 pear:
   command: "pear"
   t: 100
-  v: 25
+  v: 10
   j: 6
-  p: 0.001
+  p: 0.05
   extra_params: ""
   prcpear: 90
 
@@ -624,9 +624,11 @@ dada2_asv:
 #------------------------------------------------------------------------------#
 dada2_taxonomy:
   db: ""
-  add_sps: "T"
-  db_sps: ""
-  extra_params: "minBoot=45"
+  extra_params: ""
+  add_sps:
+    add: "T"
+    db_sps: ""
+    extra_params: "allowMultiple="T"
 
 
 #------------------------------------------------------------------------------#
@@ -698,11 +700,11 @@ align_vs_reference:
 #                one adapter to be found.                                      # 
 # More info and options at http://cutadapt.readthedocs.io/en/stable/guide.html #
 #------------------------------------------------------------------------------#
-cutAdapters: "T"
+cutAdapters: "F"
 cutadapt:
   command: "cutadapt"
-  adapters: "-g  ^CTTGGTCATTTAGAGGAAGTAA...GCATCGATGAAGAACGCAGC -g ^GATGAAGAACGYAGYRAA...CGAGTGAAGMGGBAAVAG"
-  extra_params: "--match-read-wildcards  -e 0.1 --discard-untrimmed -O 35"
+  adapters: ""
+  extra_params: "--match-read-wildcards  -O 19"
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                 Identify chimeric sequences                          #
@@ -744,9 +746,9 @@ cutadapt:
 #------------------------------------------------------------------------------#
 chimera:
   search: "F"
-  method: "uchime_ref"
+  method: "uchime_denovo"
   threads: 10
-  extra_params: "--db /export/data01/databases/unite/uchime_release/uchime_reference_dataset_28.06.2017/uchime_reference_dataset_28.06.2017.fasta"
+  extra_params: ""
 
 #------------------------------------------------------------------------------#
 # BOTH_WF:           Length filtering for OTU or ASV                           #
@@ -792,10 +794,10 @@ chimera:
 #    backup previous results, otherwise, they will be overwritten.             #
 #------------------------------------------------------------------------------#
 rm_reads:
-  non_interactive_behaviour: "CFG"
+  non_interactive_behaviour: "AVG"
   offset: 10
   longs: 450
-  shorts: 200
+  shorts: 300
 
 
 #------------------------------------------------------------------------------#
@@ -850,10 +852,10 @@ derep:
 #                  options.                                                    # 
 #------------------------------------------------------------------------------#
 pickOTU:
-  s: ""
+  s: "0.97"
   m: "swarm"
   cpus: "6"
-  extra_params: "--swarm_resolution 2"
+  extra_params: "--swarm_resolution 1"
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                Select representative sequences                       #
@@ -865,7 +867,6 @@ pickOTU:
 #                                                                              #
 # - m             Method for picking representative sequences. Valid choices   #
 #                 are: random, longest, most_abundant, first                   #
-#                 are: random, longest, most_abundant, first.                  #
 #                 [default: "most_abundant"]                                   # 
 #                 Note: "first" chooses the cluster seed when picking otus with#
 #                 uclust.                                                      #
@@ -1015,8 +1016,8 @@ assignTaxonomy:
     extra_params: ""
   vsearch:
     command: "vsearch"
-    db_file: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/rep_set/rep_set_18S_only/94/silva_132_94_18S.fna"
-    mapFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/taxonomy/18S_only/94/taxonomy_7_levels.txt"
+    db_file: "silva132_99.fna"
+    mapFile: "taxonomy_7_levels.txt"
     identity: 0.8
     taxo_separator: "';'" 
     max_target_seqs: 5 
@@ -1025,11 +1026,11 @@ assignTaxonomy:
     extra_params: "--top_hits_only --maxrejects 32"
   qiime:
     method: "uclust"
-    mapFile: "/export/data01/databases/unite/qiime_release/sh_qiime_release_04.02.2020/sh_taxonomy_qiime_ver8_97_04.02.2020.txt"
-    dbFile: "/export/data01/databases/unite/qiime_release/sh_qiime_release_04.02.2020/sh_refs_qiime_ver8_97_04.02.2020.fasta"
+    mapFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/taxonomy/18S_only/97/taxonomy_7_levels.txt"
+    dbFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/rep_set/rep_set_18S_only/97/silva_132_97_18S.fna"
     dbType: "-r"
-    jobs: 15
-    extra_params: ""
+    jobs: 10
+    extra_params: "--similarity 0.9" #default
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                       Make OTU Table                                 #

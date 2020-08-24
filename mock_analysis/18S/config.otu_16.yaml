@@ -69,7 +69,7 @@ LIBRARY: ["SRR3231826","SRR3231837","SRR3231838","SRR3231900","SRR3231901","SRR3
 # user must assign this value via the command line.                            #
 # i.e:  --config RUN=run_name                                                  #
 #------------------------------------------------------------------------------#
-RUN: "config_7"
+RUN: "config_16"
 
 #------------------------------------------------------------------------------#
 #                           Description                                        #
@@ -314,7 +314,7 @@ fastQC:
 pear:
   command: "pear"
   t: 100
-  v: 10
+  v: 40
   j: 6
   p: 0.05
   extra_params: ""
@@ -624,9 +624,11 @@ dada2_asv:
 #------------------------------------------------------------------------------#
 dada2_taxonomy:
   db: ""
-  add_sps: "T"
-  db_sps: ""
-  extra_params: "minBoot=45"
+  extra_params: ""
+  add_sps:
+    add: "T"
+    db_sps: ""
+    extra_params: "allowMultiple="T"
 
 
 #------------------------------------------------------------------------------#
@@ -1000,7 +1002,7 @@ pickRep:
 #    - jobs:           Number of jobs to start in parallel                     #
 #------------------------------------------------------------------------------#
 assignTaxonomy:
-  tool: "qiime"
+  tool: "vsearch"
   blast:
     command: "blastn"
     blast_db: ""
@@ -1008,17 +1010,17 @@ assignTaxonomy:
     mapFile: ""
     taxo_separator: "';'" 
     evalue: "0.0001"
-    max_target_seqs: 5
+    max_target_seqs: 10
     jobs: 10
-    identity: 0.8   
+    identity: 0.9   
     extra_params: ""
   vsearch:
     command: "vsearch"
-    db_file: "silva132_99.fna"
-    mapFile: "taxonomy_7_levels.txt"
-    identity: 0.8
+    db_file: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/rep_set/rep_set_18S_only/97/silva_132_97_18S.fna"
+    mapFile: "/export/data01/databases/silva/qiime/SILVA_132_QIIME_release/taxonomy/18S_only/97/taxonomy_7_levels.txt"
+    identity: 0.9
     taxo_separator: "';'" 
-    max_target_seqs: 5 
+    max_target_seqs: 10 
     identity_definition: 2  
     jobs: 10
     extra_params: "--top_hits_only --maxrejects 32"
@@ -1060,8 +1062,8 @@ makeOtu:
 #                 'filter_otus_from_otu_table.py --help' to  see all options.  #
 #------------------------------------------------------------------------------#
 filterOtu:
-  n: "2"
-  extra_params: ""
+  n: "5"
+  extra_params: "-s 3"
 
 #------------------------------------------------------------------------------#
 # OTU_WF:                       Biom convert                                   #
